@@ -1,11 +1,20 @@
+using Microsoft.EntityFrameworkCore;
+using StackOverflowTags.api.Data;
+using StackOverflowTags.api.Extensions;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+
 
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+{
+    options.UseNpgsql(builder.Configuration.GetConnectionString("PostgresDB"));
+});
 
 var app = builder.Build();
 
@@ -14,11 +23,12 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
+    app.AddMigrations();
 }
 
-app.UseHttpsRedirection();
+/*app.UseHttpsRedirection();
 
-app.UseAuthorization();
+app.UseAuthorization();*/
 
 app.MapControllers();
 
