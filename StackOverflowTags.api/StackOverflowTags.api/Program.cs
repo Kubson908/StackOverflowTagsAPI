@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Serilog;
 using StackOverflowTags.api.Data;
 using StackOverflowTags.api.Exceptions;
 using StackOverflowTags.api.Extensions;
@@ -7,7 +8,8 @@ using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
-
+builder.Host.UseSerilog((context, configuration) =>
+    configuration.ReadFrom.Configuration(context.Configuration));
 
 builder.Services.AddControllers().AddJsonOptions(options =>
                 options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter())); ;
@@ -34,13 +36,14 @@ builder.Services.AddProblemDetails();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
     app.AddMigrations();
 }
+
+app.UseSerilogRequestLogging();
 
 app.UseExceptionHandler();
 

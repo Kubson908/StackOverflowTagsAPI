@@ -1,8 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using StackOverflowTags.api.Data;
 using StackOverflowTags.api.Model;
+using System;
 using System.IO.Compression;
 
 namespace StackOverflowTags.api.Services;
@@ -17,12 +17,13 @@ public class TagsService(HttpClient httpClient, ApplicationDbContext context, IL
     {
         if (minTagsCount <= 0)
         {
-            _logger.LogError(new Exception(TagsErrors.TagsCount.Message), "");
+            _logger.LogError("Exception: {Message}", TagsErrors.TagsCount.Message);
             return ApiResult.Failure(TagsErrors.TagsCount);
         }
 
         if (pageSize <= 0)
         {
+            _logger.LogError("Exception: {Message}", TagsErrors.PageSize.Message);
             return ApiResult.Failure(TagsErrors.PageSize);
         }
 
@@ -99,11 +100,13 @@ public class TagsService(HttpClient httpClient, ApplicationDbContext context, IL
     {
         if (page <= 0)
         {
+            _logger.LogError("Exception: {Message}", TagsErrors.Page.Message);
             return ApiResult.Failure(TagsErrors.Page);
         }
 
         if (pageSize <= 0)
         {
+            _logger.LogError("Exception: {Message}", TagsErrors.PageSize.Message);
             return ApiResult.Failure(TagsErrors.PageSize);
         }
 
