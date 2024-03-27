@@ -5,7 +5,7 @@ namespace StackOverflowTags.api.Model;
 public class Tag
 {
     [Key]
-    public int Id { get; set; }
+    public int? Id { get; set; } = null;
     [Required]
     public bool Has_synonyms { get; set; }
     [Required]

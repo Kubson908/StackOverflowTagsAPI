@@ -1,9 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Newtonsoft.Json;
 using StackOverflowTags.api.Data;
-using StackOverflowTags.api.Model;
-using System.IO.Compression;
+using StackOverflowTags.api.Services;
 
 namespace StackOverflowTags.api.Controllers;
 
@@ -12,49 +10,24 @@ namespace StackOverflowTags.api.Controllers;
 public class TagsController : ControllerBase
 {
     private ApplicationDbContext _context;
-    private IConfiguration _configuration;
-    private HttpClient _client;
-    public TagsController(IConfiguration configuration, ApplicationDbContext context)
+    private readonly TagsService _tagsService;
+    public TagsController(ApplicationDbContext context, TagsService tagsService)
     {
-        _configuration = configuration;
-        _client = new HttpClient();
         _context = context;
+        _tagsService = tagsService;
     }
 
     [HttpGet("download-tags")]
-    public async Task<IActionResult> DownloadTags()
+    public async Task<IActionResult> DownloadTags([FromQuery] int minTotal = 1000, [FromQuery] int pageSize = 100, [FromQuery] string order = "asc")
     {
-        string? apiUrl = _configuration.GetValue<string>("ApiURL");
-
         try
         {
-            var response = await _client.GetAsync(apiUrl);
-
-            if (response.Content.Headers.ContentEncoding.Contains("gzip"))
-            {
-                using var decompressedStream = new GZipStream(await response.Content.ReadAsStreamAsync(), CompressionMode.Decompress);
-                using var reader = new StreamReader(decompressedStream);
-                var jsonString = await reader.ReadToEndAsync();
-                var items = JsonConvert.DeserializeObject<ApiResponse>(jsonString)?.items;
-                if (items is not null)
-                {
-                    await _context.Tags.ExecuteDeleteAsync();
-                    await _context.Tags.AddRangeAsync(items);
-                    await _context.SaveChangesAsync();
-                }
-                return Ok(items);
-            } 
-            else
-            {
-                var jsonString = await response.Content.ReadAsStringAsync();
-                var items = JsonConvert.DeserializeObject<ApiResponse>(jsonString)?.items;
-                return Ok(items);
-            }
-
+            await _tagsService.DownloadTags(minTotal, pageSize, order);
         } catch (Exception ex)
         {
             return StatusCode(500, ex.Message);
         }
+        return Ok();
     }
 
     [HttpGet("get-tags")]

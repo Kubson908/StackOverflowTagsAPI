@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using StackOverflowTags.api.Data;
 using StackOverflowTags.api.Extensions;
+using StackOverflowTags.api.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,6 +16,15 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 {
     options.UseNpgsql(builder.Configuration.GetConnectionString("PostgresDB"));
 });
+
+builder.Services.AddScoped<TagsService>();
+
+builder.Services.AddHttpClient<TagsService>(client =>
+{
+    client.BaseAddress = new Uri("https://api.stackexchange.com/2.3/");
+});
+
+builder.Services.AddHostedService<TagsInitializationService>();
 
 var app = builder.Build();
 
