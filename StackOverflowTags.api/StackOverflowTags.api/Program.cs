@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using StackOverflowTags.api.Data;
+using StackOverflowTags.api.Exceptions;
 using StackOverflowTags.api.Extensions;
 using StackOverflowTags.api.Services;
 using System.Text.Json.Serialization;
@@ -28,6 +29,9 @@ builder.Services.AddHttpClient<TagsService>(client =>
 
 builder.Services.AddHostedService<TagsInitializationService>();
 
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+builder.Services.AddProblemDetails();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -38,9 +42,7 @@ if (app.Environment.IsDevelopment())
     app.AddMigrations();
 }
 
-/*app.UseHttpsRedirection();
-
-app.UseAuthorization();*/
+app.UseExceptionHandler();
 
 app.MapControllers();
 

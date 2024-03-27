@@ -16,5 +16,5 @@ public class Tag
     public int Count { get; set; }
     [Required]
     public required string Name { get; set; }
-    public double? PopulationPercentage { get; set; } = null;
+    public double? Population_percentage { get; set; } = null;
 }

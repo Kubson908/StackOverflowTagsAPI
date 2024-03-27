@@ -15,35 +15,24 @@ public class TagsController : ControllerBase
     }
 
     [HttpGet("download-tags")]
-    public async Task<IActionResult> DownloadTags([FromQuery] int minTotal = 1000, [FromQuery] int pageSize = 100, [FromQuery][EnumDataType(typeof(StackAPISort))] StackAPISort sort = StackAPISort.popular, [FromQuery][EnumDataType(typeof(Order))] Order order = Order.desc)
+    public async Task<IResult> DownloadTags([FromQuery] int minTotal = 1000, [FromQuery] int pageSize = 100, [FromQuery][EnumDataType(typeof(StackAPISort))] StackAPISort sort = StackAPISort.popular, [FromQuery][EnumDataType(typeof(Order))] Order order = Order.desc)
     {
-        try
-        {
-            await _tagsService.DownloadTags(minTotal, pageSize, sort.ToString(), order.ToString());
-        } catch (Exception ex)
-        {
-            return StatusCode(500, ex.Message);
-        }
-        return Ok();
+        var result = await _tagsService.DownloadTags(minTotal, pageSize, sort.ToString(), order.ToString());
+        if (result.IsSuccess)
+            return Results.Ok();
+
+        return Results.BadRequest(result.Error);
     }
 
     [HttpGet("get-tags")]
-    public async Task<IActionResult> GetTags([FromQuery] int page, [FromQuery] int pageSize, 
+    public async Task<IResult> GetTags([FromQuery] int page, [FromQuery] int pageSize, 
         [FromQuery][EnumDataType(typeof(DBSort))] DBSort sort = DBSort.name,
         [FromQuery][EnumDataType(typeof(Order))] Order order = Order.asc)
     {
-        if (page <= 0)
-        {
-            return BadRequest("Page must be greater than 0");
-        }
-        try
-        {
-            var tags = await _tagsService.GetTags(page, pageSize, sort, order);
-            return Ok(tags);
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500, ex.Message);
-        }
+        var result = await _tagsService.GetTags(page, pageSize, sort, order);
+        if (result.IsSuccess)
+            return Results.Ok(result.Tags);
+
+        return Results.BadRequest(result.Error);
     }
 }
