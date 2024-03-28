@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Serilog;
 using StackOverflowTags.api.Data;
 using StackOverflowTags.api.Exceptions;
@@ -26,7 +27,7 @@ builder.Services.AddScoped<TagsService>();
 
 builder.Services.AddHttpClient<TagsService>(client =>
 {
-    client.BaseAddress = new Uri("https://api.stackexchange.com/2.3/");
+    client.BaseAddress = new Uri(builder.Configuration.GetSection("ApiURL").Value!);
 });
 
 builder.Services.AddHostedService<TagsInitializationService>();

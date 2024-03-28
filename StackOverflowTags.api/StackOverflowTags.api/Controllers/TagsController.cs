@@ -30,7 +30,7 @@ public class TagsController : ControllerBase
         [FromQuery][EnumDataType(typeof(DBSort))] DBSort sort = DBSort.name,
         [FromQuery][EnumDataType(typeof(Order))] Order order = Order.asc)
     {
-        var result = await _tagsService.GetTags(page, pageSize, sort, order);
+        var result = await _tagsService.GetTagsAsync(page, pageSize, sort, order);
         if (result.IsSuccess)
             return Results.Ok(result.Tags);
 

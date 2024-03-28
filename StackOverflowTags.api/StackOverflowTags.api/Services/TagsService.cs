@@ -94,7 +94,7 @@ public class TagsService(HttpClient httpClient, ApplicationDbContext context, IL
         await _context.SaveChangesAsync();
     }
 
-    public async Task<ApiResult> GetTags(int page, int pageSize,
+    public async Task<ApiResult> GetTagsAsync(int page, int pageSize,
         DBSort sort = DBSort.name, Order order = Order.asc)
     {
         if (page <= 0)
