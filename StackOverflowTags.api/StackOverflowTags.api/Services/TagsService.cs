@@ -2,7 +2,6 @@
 using Newtonsoft.Json;
 using StackOverflowTags.api.Data;
 using StackOverflowTags.api.Model;
-using System;
 using System.IO.Compression;
 
 namespace StackOverflowTags.api.Services;
@@ -127,6 +126,17 @@ public class TagsService(HttpClient httpClient, ApplicationDbContext context, IL
             .ToListAsync();
         }
         return ApiResult.Success(tags);
+    }
+
+    public async Task<ApiResult> GetTagByIdAsync(int id)
+    {
+        Tag? tag = await _context.Tags.FindAsync(id);
+        if (tag == null)
+        {
+            _logger.LogInformation(": {Message}", TagsErrors.Page.Message);
+            return ApiResult.Failure(TagsErrors.TagNotFound);
+        }
+        return ApiResult.Success([tag]);
     }
 }
 

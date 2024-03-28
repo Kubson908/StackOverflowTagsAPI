@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using StackOverflowTags.api.Model;
 using StackOverflowTags.api.Services;
 using System.ComponentModel.DataAnnotations;
 
@@ -34,5 +35,14 @@ public class TagsController : ControllerBase
             return Results.Ok(result.Tags);
 
         return Results.BadRequest(result.Error);
+    }
+
+    [HttpGet("get-tag/{id}")]
+    public async Task<IResult> GetTagById([FromRoute] int id)
+    {
+        ApiResult result = await _tagsService.GetTagByIdAsync(id);
+        if (result.IsSuccess) 
+            return Results.Ok(result.Tags);
+        return Results.NotFound(result.Error);
     }
 }
