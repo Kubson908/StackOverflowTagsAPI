@@ -82,7 +82,7 @@ public class TagsServiceTest
     }
 
     [Fact]
-    public async Task GetTags_ValidParameters_SchouldReturnSuccessResult()
+    public async Task GetTagsAsync_ValidParameters_SchouldReturnSuccessResult()
     {
         // Arrange
         int page = 1, pageSize = 5;
@@ -95,5 +95,33 @@ public class TagsServiceTest
 
         // Assert
         Assert.True(result.IsSuccess && result.Tags == _sampleTags);
+    }
+
+    [Fact]
+    public async Task GetTagByIdAsync_TagNotFound_SchouldReturnFailureResult()
+    {
+        // Arrange
+        int id = 1;
+        _tagRepositoryMock.Setup(repo => repo.GetTagByIdAsync(id)).Returns(Task.FromResult<Tag?>(null));
+
+        // Act
+        var result = await _tagsService.GetTagByIdAsync(id);
+
+        // Assert
+        Assert.True(!result.IsSuccess && result.Error == TagsErrors.TagNotFound);
+    }
+
+    [Fact]
+    public async Task GetTagByIdAsync_TagFound_SchouldReturnSuccessResult()
+    {
+        // Arrange
+        int id = 1;
+        _tagRepositoryMock.Setup(repo => repo.GetTagByIdAsync(id)).Returns(Task.FromResult<Tag?>(_sampleTags[0]));
+
+        // Act
+        var result = await _tagsService.GetTagByIdAsync(id);
+
+        // Assert
+        Assert.True(result.IsSuccess && result.Tags!.Contains(_sampleTags[0]));
     }
 }
