@@ -1,15 +1,14 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Newtonsoft.Json;
-using StackOverflowTags.api.Data;
+﻿using Newtonsoft.Json;
+using StackOverflowTags.api.Data.Interfaces;
 using StackOverflowTags.api.Model;
 using System.IO.Compression;
 
 namespace StackOverflowTags.api.Services;
 
-public class TagsService(HttpClient httpClient, ApplicationDbContext context, ILogger<TagsService> logger)
+public class TagsService(HttpClient httpClient, ITagRepository tagRepo, ILogger<TagsService> logger)
 {
     private readonly HttpClient _httpClient = httpClient;
-    private readonly ApplicationDbContext _context = context;
+    private readonly ITagRepository _tagRepo = tagRepo;
     private readonly ILogger<TagsService> _logger = logger;
 
     public async Task<ApiResult> DownloadTags(int minTagsCount = 1000, int pageSize = 100, string sort = "popular", string order = "desc")
@@ -26,7 +25,7 @@ public class TagsService(HttpClient httpClient, ApplicationDbContext context, IL
             return ApiResult.Failure(TagsErrors.PageSize);
         }
 
-        await _context.Tags.ExecuteDeleteAsync();
+        await _tagRepo.ExecuteDeleteAsync();
 
         var totalPages = (int)Math.Ceiling((double)minTagsCount / pageSize);
 
@@ -34,15 +33,15 @@ public class TagsService(HttpClient httpClient, ApplicationDbContext context, IL
         {
             var tags = await GetTagsPage(page, pageSize, sort, order);
 
-            await _context.Tags.AddRangeAsync(tags);
+            await _tagRepo.AddRangeAsync(tags);
 
             if (tags.Count >= minTagsCount)
             {
                 break;
             }
         }
-        await _context.SaveChangesAsync();
-        await CalculatePercentages();
+        await _tagRepo.SaveChangesAsync();
+        await _tagRepo.CalculatePercentagesAsync();
         return ApiResult.Success();
     }
 
@@ -78,20 +77,10 @@ public class TagsService(HttpClient httpClient, ApplicationDbContext context, IL
 
     public async Task CheckOnStartup()
     {
-        if (_context.Tags.Count() < 1000) // The condition can be removed if data needs to be fetched upon each application launch
+        if (_tagRepo.Count() < 1000) // The condition can be removed if data needs to be fetched upon each application launch
         {
             await DownloadTags();
         }
-    }
-
-    public async Task CalculatePercentages()
-    {
-        int totalTagCount = await _context.Tags.SumAsync(t => t.Count);
-        await _context.Tags.ForEachAsync(tag =>
-        {
-            tag.Population_percentage = (double)tag.Count / (double)totalTagCount * 100;
-        });
-        await _context.SaveChangesAsync();
     }
 
     public async Task<ApiResult> GetTagsAsync(int page, int pageSize,
@@ -109,28 +98,13 @@ public class TagsService(HttpClient httpClient, ApplicationDbContext context, IL
             return ApiResult.Failure(TagsErrors.PageSize);
         }
 
-        List<Tag>? tags;
-        if (order == Order.asc)
-        {
-            tags = await (sort == DBSort.name ?
-            _context.Tags.OrderBy(t => t.Name) : _context.Tags.OrderBy(t => t.Population_percentage))
-            .Skip((page - 1) * pageSize).Take(pageSize).ToListAsync();
-        }
-        else
-        {
-            tags = await (sort == DBSort.name ?
-            _context.Tags.OrderByDescending(t => t.Name) :
-             _context.Tags.OrderByDescending(t => t.Population_percentage))
-            .Skip((page - 1) * pageSize)
-            .Take(pageSize)
-            .ToListAsync();
-        }
+        List<Tag>? tags = await _tagRepo.GetPageAsync(page, pageSize, sort, order);
         return ApiResult.Success(tags);
     }
 
     public async Task<ApiResult> GetTagByIdAsync(int id)
     {
-        Tag? tag = await _context.Tags.FindAsync(id);
+        Tag? tag = await _tagRepo.GetTagByIdAsync(id);
         if (tag == null)
         {
             _logger.LogInformation(": {Message}", TagsErrors.Page.Message);

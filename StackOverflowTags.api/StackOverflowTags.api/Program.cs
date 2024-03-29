@@ -1,7 +1,8 @@
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 using Serilog;
 using StackOverflowTags.api.Data;
+using StackOverflowTags.api.Data.Interfaces;
+using StackOverflowTags.api.Data.Repositories;
 using StackOverflowTags.api.Exceptions;
 using StackOverflowTags.api.Extensions;
 using StackOverflowTags.api.Services;
@@ -24,6 +25,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 });
 
 builder.Services.AddScoped<TagsService>();
+builder.Services.AddScoped<ITagRepository, TagRepository>();
 
 builder.Services.AddHttpClient<TagsService>(client =>
 {

@@ -9,36 +9,36 @@ public static class StaticVars
                     ""has_synonyms"": false,
                     ""is_moderator_only"": false,
                     ""is_required"": false,
-                    ""count"": 147,
-                    ""name"": "".a""
+                    ""count"": 28,
+                    ""name"": ""action-menu""
                 },
                 {
                     ""has_synonyms"": false,
                     ""is_moderator_only"": false,
                     ""is_required"": false,
-                    ""count"": 162,
-                    ""name"": "".app""
+                    ""count"": 5,
+                    ""name"": ""actionmenuview""
                 },
                 {
                     ""has_synonyms"": false,
                     ""is_moderator_only"": false,
                     ""is_required"": false,
-                    ""count"": 64,
-                    ""name"": "".aspxauth""
+                    ""count"": 135,
+                    ""name"": ""actionmethod""
                 },
                 {
                     ""has_synonyms"": false,
                     ""is_moderator_only"": false,
                     ""is_required"": false,
-                    ""count"": 284,
-                    ""name"": "".class-file""
+                    ""count"": 58,
+                    ""name"": ""actionmode""
                 },
                 {
                     ""has_synonyms"": false,
                     ""is_moderator_only"": false,
                     ""is_required"": false,
-                    ""count"": 6,
-                    ""name"": "".cod-file""
+                    ""count"":10,
+                    ""name"": ""action-open-document-tree""
                 }
             ],
             ""has_more"": true,

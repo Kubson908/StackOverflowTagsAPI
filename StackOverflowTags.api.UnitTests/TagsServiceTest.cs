@@ -1,6 +1,6 @@
 using Microsoft.Extensions.Logging;
 using Moq;
-using StackOverflowTags.api.Data;
+using StackOverflowTags.api.Data.Interfaces;
 using StackOverflowTags.api.Model;
 using StackOverflowTags.api.Services;
 using System.Net;
@@ -10,7 +10,7 @@ namespace StackOverflowTags.api.UnitTests;
 public class TagsServiceTest
 {
     private readonly HttpClient _httpClient;
-    private readonly Mock<ApplicationDbContext> _contextMock;
+    private readonly Mock<ITagRepository> _tagRepositoryMock;
     private readonly Mock<ILogger<TagsService>> _loggerMock;
     private readonly TagsService _tagsService;
     private readonly List<Tag> _sampleTags = [
@@ -24,22 +24,10 @@ public class TagsServiceTest
     public TagsServiceTest()
     {
         _httpClient = new HttpClient(new HttpMessageHandlerMock(HttpStatusCode.OK));
-        var mockSet = MockHelper.GetMockDbSet<Tag>(_sampleTags.AsQueryable());
-        _contextMock = new Mock<ApplicationDbContext>();
+        _tagRepositoryMock = new Mock<ITagRepository>();
         _loggerMock = new Mock<ILogger<TagsService>>();
-        _tagsService = new TagsService(_httpClient, _contextMock.Object, _loggerMock.Object);
+        _tagsService = new TagsService(_httpClient, _tagRepositoryMock.Object, _loggerMock.Object);
     }
-
-    /*private DbSet<Tag> MockDbSet(List<Tag> tags)
-    {
-        var queryable = tags.AsQueryable();
-        var mockDbSet = new Mock<DbSet<Tag>>();
-        mockDbSet.As<IQueryable<Tag>>().Setup(m => m.Provider).Returns(queryable.Provider);
-        mockDbSet.As<IQueryable<Tag>>().Setup(m => m.Expression).Returns(queryable.Expression);
-        mockDbSet.As<IQueryable<Tag>>().Setup(m => m.ElementType).Returns(queryable.ElementType);
-        mockDbSet.As<IQueryable<Tag>>().Setup(m => m.GetEnumerator()).Returns(() => queryable.GetEnumerator());
-        return mockDbSet.Object;
-    }*/
 
     [Fact]
     public async Task DownloadTags_MinTagsCountIsInvalid_ShouldReturnFailureResult()
@@ -93,31 +81,19 @@ public class TagsServiceTest
         Assert.True(!result.IsSuccess && result.Error == TagsErrors.PageSize);
     }
 
-    /*[Fact]
-    public async Task GetTags_ValidParameters_OrderByNameAsc_SchouldReturnSuccessResult()
+    [Fact]
+    public async Task GetTags_ValidParameters_SchouldReturnSuccessResult()
     {
         // Arrange
-        int page = 1;
-        int pageSize = 5;
+        int page = 1, pageSize = 5;
+        DBSort sort = DBSort.name;
+        Order order = Order.asc;
+        _tagRepositoryMock.Setup(repo => repo.GetPageAsync(page, pageSize, sort, order)).ReturnsAsync(_sampleTags);
 
         // Act
         var result = await _tagsService.GetTagsAsync(page, pageSize);
 
         // Assert
-        Assert.True(result.IsSuccess);
-    }*/
-
-    /*[Fact]
-    public async Task DownloadTags_ValidParameters_ShouldReturnSuccessResult()
-    {
-        // Arrange
-
-        // Act
-        var result = await _tagsService.DownloadTags(5, 5);
-
-        // Assert
-        Assert.True(result.IsSuccess);
-    }*/
-
-
+        Assert.True(result.IsSuccess && result.Tags == _sampleTags);
+    }
 }
