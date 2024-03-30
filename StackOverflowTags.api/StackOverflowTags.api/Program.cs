@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Serilog;
+using StackOverflowTags.api.Endpoints;
 using StackOverflowTags.api.Data;
 using StackOverflowTags.api.Data.Interfaces;
 using StackOverflowTags.api.Data.Repositories;
@@ -50,6 +51,6 @@ app.UseSerilogRequestLogging();
 
 app.UseExceptionHandler();
 
-app.MapControllers();
+app.MapTagsEndpoints();
 
 app.Run();

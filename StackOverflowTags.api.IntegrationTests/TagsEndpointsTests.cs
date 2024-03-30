@@ -2,13 +2,9 @@
 
 namespace StackOverflowTags.api.IntegrationTests;
 
-public class TagsControllerTests : IClassFixture<AppFactory>
+public class TagsEndpointsTests(AppFactory webApplicationFactory) : IClassFixture<AppFactory>
 {
-    private readonly HttpClient _httpClient;
-    public TagsControllerTests(AppFactory webApplicationFactory)
-    {
-        _httpClient = webApplicationFactory.HttpClient;
-    }
+    private readonly HttpClient _httpClient = webApplicationFactory.HttpClient;
 
     [Fact]
     public async Task DownloadTags_InvalidTagsCount_ShouldReturnBadRequest()
@@ -56,7 +52,7 @@ public class TagsControllerTests : IClassFixture<AppFactory>
         int page = 0, pageSize = 10;
 
         // Act
-        var response = await _httpClient.GetAsync($"/api/tags/get-tags?page={page}&pageSize={pageSize}");
+        var response = await _httpClient.GetAsync($"/api/tags?page={page}&pageSize={pageSize}");
 
         // Assert
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
@@ -69,7 +65,7 @@ public class TagsControllerTests : IClassFixture<AppFactory>
         int page = 1, pageSize = 0;
 
         // Act
-        var response = await _httpClient.GetAsync($"/api/tags/get-tags?page={page}&pageSize={pageSize}");
+        var response = await _httpClient.GetAsync($"/api/tags?page={page}&pageSize={pageSize}");
 
         // Assert
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
@@ -82,7 +78,7 @@ public class TagsControllerTests : IClassFixture<AppFactory>
         int page = 1, pageSize = 10;
 
         // Act
-        var response = await _httpClient.GetAsync($"/api/tags/get-tags?page={page}&pageSize={pageSize}");
+        var response = await _httpClient.GetAsync($"/api/tags?page={page}&pageSize={pageSize}");
 
         // Assert
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
