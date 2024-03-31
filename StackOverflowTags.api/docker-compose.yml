@@ -9,7 +9,7 @@ services:
       dockerfile: StackOverflowTags.api/Dockerfile
     ports:
       - "5000:5000"
-      - "5001:5001"
+    command: 
     depends_on:
       stackoverflowtags.database:
         condition: service_healthy
