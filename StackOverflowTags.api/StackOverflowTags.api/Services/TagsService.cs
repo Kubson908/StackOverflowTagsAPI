@@ -19,7 +19,7 @@ public class TagsService(HttpClient httpClient, ITagRepository tagRepo, ILogger<
             return ApiResult.Failure(TagsErrors.TagsCount);
         }
 
-        if (pageSize <= 0)
+        if (pageSize <= 0 || pageSize > 100)
         {
             _logger.LogError("Exception: {Message}", TagsErrors.PageSize.Message);
             return ApiResult.Failure(TagsErrors.PageSize);
