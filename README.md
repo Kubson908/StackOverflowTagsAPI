@@ -21,7 +21,8 @@ REST API udostępnia następujące metody:
 
 ## Instrukcja uruchomienia
 Aby uruchomić API należy włączyć klienta docker i następnie za za pomocą wiersza poleceń w folderze StackOverflowTags.api wywołać polecenie
-```docker compose up```
+```docker compose up``` <br />
+Definicja OpenAPI będzie dostępna pod adresem <a href="http://localhost:5000/swagger/index.html">http://localhost:5000/swagger/index.html</a>
 
 ## Wykorzystane technologie
 
